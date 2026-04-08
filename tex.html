@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <!-- UBAH JUDUL DISINI -->
+    <title>thesafeweb.com - System Security</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;900&display=swap');
+        
+        :root {
+            --danger: #ff0000;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: #000;
+            color: var(--danger);
+            overflow: hidden;
+            cursor: url('https://cur.cursors-4u.net/cursors/cur-11/cur1054.cur'), auto !important;
+        }
+
+        /* Efek Layar Bergoyang */
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shake-screen {
+            animation: shake 0.5s infinite;
+        }
+
+        /* Tulisan Berkedip */
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .text-blink {
+            animation: blink 0.8s infinite;
+        }
+
+        /* Garis Hijau Seperti Matrix */
+        .matrix-bg {
+            background-image: linear-gradient(rgba(0, 255, 0, 0.1) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 255, 0, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Scroll jadi aneh */
+        * {
+            scroll-behavior: unset !important;
+        }
+
+        .scanline {
+            width: 100%;
+            height: 100px;
+            z-index: 1;
+            background: linear-gradient(0deg, rgba(0,0,0,0) 0%, rgba(255,0,0,0.2) 50%, rgba(0,0,0,0) 100%);
+            position: absolute;
+            bottom: 100%;
+            animation: scanline 6s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes scanline {
+            0% { bottom: 100%; }
+            100% { bottom: -100px; }
+        }
+
+        /* TAMBAHAN LOGO DI ATAS */
+        .logo {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+            color: #0f0;
+            z-index: 99;
+        }
+    </style>
+</head>
+<body class="matrix-bg min-h-screen flex items-center justify-center">
+
+    <!-- TAMBAH LOGO THE SAFE WEB -->
+    <div class="logo">🔒 thesafeweb.com</div>
+
+    <div class="scanline"></div>
+
+    <div id="mainContainer" class="w-full h-full flex flex-col items-center justify-center text-center px-4 relative z-10">
+        
+        <!-- ICON PERINGATAN -->
+        <div class="text-9xl mb-6 animate-bounce">
+            <i class="fa-solid fa-triangle-exclamation text-red-600"></i>
+        </div>
+
+        <!-- JUDUL BESAR -->
+        <h1 id="mainTitle" class="text-[clamp(2rem,8vw,4rem)] font-black text-red-600 mb-4 text-blink leading-none">
+            SYSTEM HACKED!
+        </h1>
+
+        <h2 class="text-2xl text-green-500 mb-8 font-bold">
+            <span id="typingText">Akses Tidak Sah Terdeteksi...</span>
+        </h2>
+
+        <!-- KODE ERROR -->
+        <div class="bg-black border-2 border-red-600 rounded-lg p-4 mb-8 max-w-md w-full">
+            <p class="text-sm text-left text-green-400 font-mono leading-relaxed">
+                <span id="codeLog">INITIATING VIRUS.EXE<br>CONNECTING TO REMOTE SERVER<br>UPLOADING DATA...</span>
+            </p>
+        </div>
+
+        <!-- PROGRESS BAR -->
+        <div class="w-full max-w-xs h-6 bg-gray-800 rounded-full overflow-hidden border border-red-500 mb-4">
+            <div id="progressBar" class="h-full bg-gradient-to-r from-red-600 to-red-400 transition-all duration-300" style="width: 0%"></div>
+        </div>
+        <p class="text-yellow-400 text-sm mb-8">
+            <span id="percentText">0%</span> - Menghapus Data Sistem
+        </p>
+
+        <!-- TOMBOL YANG GAK BISA DIKLIK / LARI -->
+        <button id="btnFix" class="mt-6 px-10 py-4 bg-red-700 text-white font-bold rounded-lg hover:bg-red-900 transition-all duration-75 opacity-50 cursor-not-allowed">
+            <i class="fa-solid fa-unlock"></i> PERBAIKI SEKARANG
+        </button>
+
+        <p class="text-xs text-gray-500 mt-10">
+            © 2026 thesafeweb.com - All Rights Reserved
+        </p>
+    </div>
+
+    <script>
+        // --- SUARA ALARM ---
+        let audioCtx;
+        function playAlarmSound() {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                oscillator.frequency.value = 400;
+                oscillator.type = 'sawtooth';
+                
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.5);
+            } catch(e) {}
+        }
+
+        // --- EFEK UTAMA ---
+        window.onload = function() {
+            // 1. Goyang layar
+            document.body.classList.add('shake-screen');
+            
+            // 2. Bunyi alarm berulang
+            setInterval(() => {
+                playAlarmSound();
+            }, 1500);
+
+            // 3. Isi kode berjalan
+            let logs = [
+                "SCANNING FILE SYSTEM...",
+                "FINDING PASSWORDS...",
+                "ACCESSING CAMERA... 📸",
+                "ACCESSING MICROPHONE... 🎤",
+                "SEND DATA TO REMOTE SERVER...",
+                "FORMATTING DRIVE C: ...",
+                "DELETING SYSTEM32...",
+                "SYSTEM FAILURE IMMINENT..."
+            ];
+
+            let i = 0;
+            setInterval(() => {
+                document.getElementById('codeLog').innerHTML += "<br>> " + logs[i % logs.length];
+                i++;
+                document.getElementById('codeLog').scrollTop = document.getElementById('codeLog').scrollHeight;
+            }, 800);
+
+            // 4. Progress Bar
+            let width = 0;
+            const bar = document.getElementById('progressBar');
+            const txt = document.getElementById('percentText');
+            
+            const interval = setInterval(() => {
+                if(width >= 100) {
+                    width = 100;
+                    clearInterval(interval);
+                    document.getElementById('mainTitle').innerHTML = "DEVICE LOCKED!";
+                    document.getElementById('mainTitle').style.color = "yellow";
+                } else {
+                    width += Math.random() * 2;
+                    bar.style.width = width + "%";
+                    txt.innerText = Math.floor(width) + "%";
+                }
+            }, 200);
+
+            // 5. TOMBOL LARI (Khusus Prank)
+            const btn = document.getElementById('btnFix');
+            btn.addEventListener('mouseenter', lari);
+            btn.addEventListener('touchstart', function(e){
+                e.preventDefault();
+                lari();
+                // Di HP tombolnya hilang aja
+                setTimeout(() => {
+                    btn.style.opacity = "0";
+                    btn.style.transform = "scale(0)";
+                }, 100);
+            });
+        }
+
+        function lari() {
+            const btn = document.getElementById('btnFix');
+            const x = Math.random() * (window.innerWidth - 200);
+            const y = Math.random() * (window.innerHeight - 200);
+            
+            btn.style.position = "fixed";
+            btn.style.left = x + "px";
+            btn.style.top = y + "px";
+            btn.style.transform = "rotate(" + (Math.random()*30-15) + "deg)";
+        }
+
+        // 6. Scroll jadi terbalik / aneh
+        window.addEventListener('wheel', function(e) {
+            window.scrollBy(0, -e.deltaY * 3);
+            e.preventDefault();
+        }, {passive: false});
+
+        // 7. Cegah back button di HP
+        history.pushState(null, null, location.href);
+        window.addEventListener('popstate', function () {
+            history.pushState(null, null, location.href);
+            alert("⚠️ TIDAK BISA KELUAR! SYSTEM TERKUNCI OLEH thesafeweb.com!");
+        });
+
+    </script>
+</body>
+</html>
